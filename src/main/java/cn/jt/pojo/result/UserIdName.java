@@ -11,5 +11,4 @@ public class UserIdName {
 
     private String tag;
 
-    private String r;
 }
