@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.jt.mapper.FeedbackMapper">
+
+    <!--查询反馈列表，分页-->
+    <select id="selectPagingFeedbacks"  resultType="cn.jt.pojo.Feedback">
+        select * from feedback_
+    </select>
+
+    <!-- 查询部门列表（检索） -->
+    <select id="selectFeedbackByInfo" parameterType="String" resultType="cn.jt.pojo.Feedback">
+        select * from feedback_
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="input != null and input !=''">
+                and (description like "%"#{input}"%" or summarize like "%"#{input}"%")
+            </if>
+            <if test="beginTime != null and beginTime !=''">
+                and <![CDATA[ submit_time >= #{beginTime} ]]>
+            </if>
+            <if test="endTime != null and endTime !=''">
+                and <![CDATA[ submit_time <= #{endTime} ]]>
+            </if>
+        </trim>
+    </select>
+
+    <!-- 查询部门列表，整合分页与检索 -->
+    <select id="selectPagingFeedbacksByInfo" resultType="cn.jt.pojo.Feedback">
+        select * from feedback_
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="input != null and input !=''">
+                and (description like "%"#{input}"%" or summarize like "%"#{input}"%")
+            </if>
+            <if test="beginTime != null and beginTime !=''">
+                and <![CDATA[ submit_time >= #{beginTime} ]]>
+            </if>
+            <if test="endTime != null and endTime !=''">
+                and <![CDATA[ submit_time <= #{endTime} ]]>
+            </if>
+            and user_id = #{userId}
+        </trim>
+    </select>
+
+    <!-- 根据反馈编号删除反馈 -->
+    <delete id="deleteFeedbackById" parameterType="int">
+        delete from feedback_ where id = #{id}
+    </delete>
+
+    <!-- 根据反馈 id 修改信息 -->
+    <update id="updateFeedbackById">
+        update feedback_ set
+            change_id = #{changeId},
+            description = #{description},
+            summarize = #{summarize},
+            submit_time = #{submitTime}
+        where id = #{id}
+    </update>
+
+    <!-- 根据部门 id 和反馈状态查询指定部门员工反馈数量及员工信息 -->
+    <select id="selectFeedbacksByDepartIdAndStatus" resultType="java.util.Map">
+        select feedback_.*, user_.*, count(*) as fcnt from feedback_ left join user_
+        on user_id = user_.id
+        where feedback_status = #{feedbackStatus} and feedback_.depart_id = #{departId}
+        group by user_id
+        order by user_id
+    </select>
+
+    <!-- 根据用户 id 和反馈状态查询反馈列表 -->
+    <select id="selectFeedbacksByUserIdAndStatus" resultType="cn.jt.pojo.Feedback">
+        select * from feedback_ where user_id = #{userId} and feedback_Status = #{feedbackStatus} order by id
+    </select>
+
+    <!-- 根据反馈 id 更新反馈处理说明，处理时间，反馈状态 -->
+    <update id="updateFeedbackStatusById">
+        update feedback_ set
+            feedback_status = #{feedbackStatus},
+            deal_time = #{dealTime},
+            result_desc = #{resultDesc} where id = #{id}
+    </update>
+
+    <!-- 增加反馈 -->
+    <insert id="insertFeedback">
+        insert into feedback_(user_id,depart_id,change_id,record_id,summarize,description,submit_time) values(#{userId},#{departId},#{changeId},#{recordId},#{summarize},#{description},#{submitTime})
+    </insert>
+
+    <!-- 根据反馈状态查询  -->
+<!--    <select id="selectFeedbacksByDepartIdAndStatus">-->
+<!--        select count(*) from feedback_ where feedback_status =#{feedbackStatus} and depart_id = #{departId}-->
+<!--    </select>-->
+
+
+
+
+</mapper>

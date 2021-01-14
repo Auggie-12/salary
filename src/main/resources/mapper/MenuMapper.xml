@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.jt.mapper.MenuMapper">
+
+    <!--  查询所有权限  -->
+    <select id="findAllMenus"  resultType="cn.jt.pojo.Menu">
+        select * from menu
+    </select>
+
+    <!-- 根据权限 id 查询指定权限 -->
+    <select id="findMenuByMenuId" parameterType="int" resultType="cn.jt.pojo.Menu">
+        select * from menu where id = #{mid}
+    </select>
+
+    <!-- 查询所有一级权限 -->
+    <select id="findAllParentMenus"  resultType="cn.jt.pojo.Menu">
+        select * from menu where parentId = 0
+    </select>
+
+    <!-- 查询指定角色的权限 -->
+    <select id="findMenusByRoleId" parameterType="int" resultType="cn.jt.pojo.Menu">
+        select * from menu where id in (select mid from menu_role where rid=#{rid})
+    </select>
+
+    <!-- 查询指定用户的权限 -->
+    <select id="findMenusByUserId" parameterType="int" resultType="cn.jt.pojo.Menu">
+        select * from menu where id in (select uid from menu_role where uid=#{uid})
+    </select>
+
+    <!-- 为指定角色分配一个权限 -->
+    <insert id="saveMenu" parameterType="int" >
+        insert into menu_role(mid,rid) values(#{mid},#{rid})
+    </insert>
+
+    <!-- 删除角色的所有权限 -->
+    <delete id="deleteAllMenusByRoleId" parameterType="int">
+        delete from menu_role where rid = #{rid}
+    </delete>
+    
+    <!-- 查询角色权限数量 -->
+    <select id="countMenusByRoleId" parameterType="int">
+        select count(*) cnt from menu_role where rid = #{rid}
+    </select>
+
+    <!-- 查询角色权限 -->
+    <select id="countMenus" resultType="java.util.Map">
+        select count(*) cnt,rid from menu_role group by rid
+    </select>
+
+
+
+</mapper>

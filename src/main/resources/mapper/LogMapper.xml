@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.jt.mapper.LogMapper">
+
+    <!--  查询登录日志  -->
+    <select id="selectLoginLog" resultType="cn.jt.pojo.Log">
+        select * from log_ where file_name like '%Login%' or file_name like '%Captcha%' or all_category like '%logout%'
+    </select>
+
+    <!-- 查询系统日志 -->
+    <select id="selectSystemLog" resultType="cn.jt.pojo.Log">
+        select * from log_ where file_name like '%MenuServiceImpl%' or file_name like '%RoleServiceImpl%'
+    </select>
+    
+    <!-- 查询操作日志 -->
+    <select id="selectOperateLog" resultType="cn.jt.pojo.Log">
+        select * from log_ where
+                                 file_name like '%FeedbackServiceImpl%' or
+                                 file_name like '%RecordServiceImpl%' or
+                                 file_name like '%SalaryServiceImpl%'
+    </select>
+
+    <!-- 删除日志根据 id -->
+    <delete id="deleteByLogId">
+        delete from log_ where log_id = #{logId}
+    </delete>
+
+</mapper>

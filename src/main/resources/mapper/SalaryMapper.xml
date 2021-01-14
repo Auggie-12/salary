@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.jt.mapper.SalaryMapper">
+
+    <!-- 获取指定员工在基本工资表中的最大年份和最小年份 -->
+    <select id="selectMaxAndMinYearByUserId" resultType="java.util.Map">
+        select max(syear) maxyear, min(syear) minyear from salary_ where user_id = #{userId}
+    </select>
+
+    <!-- 获取指定部门在基本工资表中的最大年份和最小年份 -->
+    <select id="selectMaxAndMinYearByDepartId" resultType="java.util.Map">
+        select max(syear) maxyear, min(syear) minyear from salary_ where depart_id = #{departId}
+    </select>
+
+    <!-- 获取指定职工，指定年份，指定月份的基本工资，职务工资，工龄工资-->
+    <select id="selectSalaryByUserIdAndSyearAndSmonth" resultType="cn.jt.pojo.Salary">
+        select * from salary_ where user_id=#{userId} and syear=#{syear} and smonth=#{smonth}
+    </select>
+
+    <!-- 指定职工，指定年份，指定月份的基本工资，职务工资，工龄工资 -->
+    <insert id="insertBasicSalaryByDepartIdAndSyearAndSmonth">
+        insert into salary_(depart_id,user_id,bsalary,jsalary,wsalary,smonth,syear)
+        values(#{departId},#{userId},#{bsalary},#{jsalary},#{wsalary},#{smonth},#{syear})
+    </insert>
+
+    <!-- 判断该部门的本月工资是否已经生成 -->
+    <select id="isHaveCurrentMonthBasicSalary" resultType="int">
+        select count(*) from salary_ where depart_id = #{departId} and smonth = #{smonth} and syear = #{syear}
+    </select>
+
+    <!-- 更新某部门某职工某年某月的基本工资 -->
+    <update id="updateBasicSalaryByDepartIdAndUserIdAndDate">
+    update salary_
+            set bsalary = #{bsalary},
+            jsalary = #{jsalary},
+            wsalary = #{wsalary}
+            where depart_id = #{departId} and user_id = #{userId} and smonth = #{smonth} and syear = #{syear}
+    </update>
+
+</mapper>

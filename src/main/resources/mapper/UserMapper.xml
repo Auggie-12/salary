@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.jt.mapper.UserMapper">
+
+    <!-- 用户信息 -->
+    <resultMap id="UserAndMenus" type="cn.jt.pojo.User">
+        <id column="id" property="id"/>
+        <result column="pwd" property="pwd"/>
+        <result column="depart_id" property="departId"/>
+        <result column="ident" property="ident"/>
+        <result column="realname" property="realname"/>
+        <result column="nickname" property="nickname"/>
+        <result column="tell" property="tell"/>
+        <result column="age" property="age"/>
+        <result column="sex" property="sex"/>
+        <result column="introduction" property="introduction"/>
+        <result column="email" property="email"/>
+        <result column="head_img" property="headImg"/>
+        <result column="work_age" property="workAge"/>
+
+        <collection property="menus" ofType="cn.jt.pojo.Menu">
+            <id column="mid" property="id"/>
+            <result column="url" property="url"/>
+            <result column="path" property="path"/>
+            <result column="component" property="component"/>
+            <result column="name" property="name"/>
+            <result column="keepAlive" property="keepAlive"/>
+            <result column="requireAuth" property="requireAuth"/>
+            <result column="parentId" property="parentId"/>
+        </collection>
+
+    </resultMap>
+
+    <!-- 查询的列 -->
+    <sql id="UserAndMenus">u.*,m.id mid,m.url,m.path,m.component,m.name,m.keepAlive,m.requireAuth,m.parentId</sql>
+
+    <!-- 通过 id 查询用户信息 -->
+    <select id="findById" parameterType="int" resultMap="UserAndMenus">
+        select <include refid="UserAndMenus"/>
+        from user_ u
+        left join hr_role ru on u.id = ru.uid
+        left join role r on ru.rid = r.id
+        left join menu_role mr on r.id = mr.rid
+        left join menu m on mr.mid = m.id
+        where u.id=#{id};
+    </select>
+
+    <!-- 查询所有用户信息 -->
+    <select id="findAll" resultMap="UserAndMenus">
+        select <include refid="UserAndMenus"/>
+        from user_ u
+        left join hr_role ru on u.id = ru.uid
+        left join role r on ru.rid = r.id
+        left join menu_role mr on r.id = mr.rid
+        left join menu m on mr.mid = m.id;
+    </select>
+
+    <!-- 更新用户信息 -->
+    <update id="updateUserByUserId" parameterType="cn.jt.pojo.User">
+        update user_ set
+            depart_id = #{departId},
+            ident = #{ident},
+            pwd = #{pwd},
+            realname = #{realname},
+            nickname = #{nickname},
+            tell = #{tell},
+            age = #{age},
+            sex = #{sex},
+            introduction = #{introduction},
+            email = #{email},
+            work_age = #{workAge}
+        where id = #{id}
+    </update>
+
+    <!-- 新增用户 -->
+    <insert id="insertUser" parameterType="cn.jt.pojo.User">
+        insert into user_(depart_id, ident, pwd, realname, nickname, tell, age, sex, introduction, email, work_age)
+            values(#{departId}, #{ident}, #{pwd}, #{realname}, #{nickname}, #{tell},
+            #{age}, #{sex}, #{introduction}, #{email}, #{workAge})
+    </insert>
+
+    <!-- 获取最大用户 id -->
+    <select id="selectMaxUserId" resultType="int">
+        select max(id) from user_
+    </select>
+
+    <!-- 为指定用户分配角色 -->
+    <insert id="insertUserRole" parameterType="int">
+        insert into hr_role(uid,rid) values(#{uid},#{rid})
+    </insert>
+
+    <!-- 删除用户 -->
+    <delete id="deleteUserByUserId" parameterType="int">
+        delete from feedback_ where user_id = #{uid};
+        delete from hr_role where uid=#{uid};
+        delete from record_ where user_id =#{uid};
+        delete from salary_ where user_id = #{uid};
+        delete from user_ where id = #{uid}
+    </delete>
+
+    <!-- 根据部门代号获取职工列表 -->
+    <select id="selectUsersByDepartId" resultType="cn.jt.pojo.User">
+        select * from user_ where depart_id =#{departId}
+    </select>
+</mapper>

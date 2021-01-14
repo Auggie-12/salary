@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.jt.mapper.RoleMapper">
+
+    <!--查询角色，根据用户id-->
+    <select id="findByUserId" parameterType="int" resultType="cn.jt.pojo.Role">
+        select * from role where id in (select rid from hr_role where uid = #{userId})
+    </select>
+
+    <!-- 根据角色 id 查询角色信息 -->
+    <select id="findByRoleId" parameterType="int" resultType="cn.jt.pojo.Role">
+        select * from role where id=#{rid}
+    </select>
+
+    <!-- 查询所有角色 -->
+    <select id="findAll"  resultType="cn.jt.pojo.Role">
+        select * from role
+    </select>
+
+    <!-- 根据用户 id 修改用户角色 -->
+    <select id="updateByUserId" resultType="int">
+        update hr_role set rid=#{rid} where uid=#{uid}
+    </select>
+    
+    <!-- 根据角色 id 删除角色权限 -->
+    <delete id="deleteRoleMenuByRoleId" parameterType="int">
+        delete from menu_role where rid = #{rid};
+    </delete>
+
+    <!-- 根据角色 id 删除角色对应用户记录 -->
+    <delete id="deleteRoleUserByRoleId" parameterType="int">
+        delete from hr_role where rid = #{rid};
+    </delete>
+
+    <!-- 根据角色 id 删除角色 -->
+    <delete id="deleteRoleByRoleId" parameterType="int">
+        delete from role where id = #{rid};
+    </delete>
+
+    <!-- 根据角色 id 修改信息 -->
+    <update id="updateRoleByRoleId">
+        update role set name = #{name}, nameZh = #{nameZh}, `desc` = #{desc} where id = #{rid}
+    </update>
+
+    <!-- 插入角色 -->
+    <insert id="insertRole">
+        insert into role(`name`, nameZh, createTime, enable, `desc`, `level`) values(#{name},
+        #{nameZh},#{createTime},#{enable},#{desc},#{level});
+    </insert>
+
+    <!-- 查询最大 id-->
+    <select id="selectMaxRoleId" resultType="int">
+        select max(id) from role
+    </select>
+
+
+
+</mapper>

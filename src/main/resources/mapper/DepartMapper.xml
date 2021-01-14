@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.jt.mapper.DepartMapper">
+
+    <!-- 查询部门列表，未分页 -->
+    <select id="selectAllDeparts"  resultType="cn.jt.pojo.Depart">
+        select * from depart_
+    </select>
+
+    <!-- 根据部门 id 查询部门 -->
+    <select id="getById" parameterType="String" resultType="cn.jt.pojo.Depart">
+        select * from depart_ where id = #{id}
+    </select>
+
+    <!--查询部门列表，分页-->
+    <select id="selectPagingDeparts"  resultType="cn.jt.pojo.Depart">
+        select * from depart_
+    </select>
+
+
+
+
+
+
+
+
+
+
+    <!--查找部门信息-->
+    <select id="getByIdName" parameterType="String" resultType="cn.jt.pojo.Depart">
+        select * from depart_
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="id != null and id !=''">
+                and id = #{id}
+            </if>
+            <if test="name != null and name !=''">
+                and name = #{name}
+            </if>
+        </trim>
+        order by id
+    </select>
+
+
+
+    <!--查询部门名字信息是否存在-->
+    <select id="getByName" parameterType="String" resultType="cn.jt.pojo.Depart">
+        select * from depart_ where name = #{name}
+    </select>
+
+    <!--根据名字查询部门的id-->
+    <select id="getId" parameterType="String" resultType="String">
+        select id from depart_ where name = #{name}
+    </select>
+
+    <!--新增部门信息-->
+    <insert id="add">
+        insert into depart_(id,name,number,address,depart_desc)
+        values(#{id},#{name},#{number},#{address},#{departDesc})
+    </insert>
+
+    <!--删除部门信息-->
+    <delete id="delete" parameterType="String" >
+        delete from depart_ where id = #{id}
+    </delete>
+
+    <!--更新部门信息-->
+    <update id="update">
+        update depart_ set name = #{name},number = #{number},address = #{address},
+        depart_desc = #{departDesc} where id = #{id}
+    </update>
+</mapper>

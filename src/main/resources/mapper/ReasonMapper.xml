@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.jt.mapper.ReasonMapper">
+
+    <!--  所有  -->
+    <select id="selectAllReasons" resultType="cn.jt.pojo.Reason">
+        select * from reason_
+    </select>
+
+    <!-- 根据变动原因编号查询变动原因 -->
+    <select id="selectReasonById" resultType="cn.jt.pojo.Reason">
+        select * from reason_ where id = #{id}
+    </select>
+
+    <!-- 根据一级变动类型编号编号查询具体变动类型 -->
+    <select id="selectAllReasonsByChangeId" resultType="cn.jt.pojo.Reason">
+        select * from reason_ where change_id = #{changeId} order by id
+    </select>
+
+</mapper>

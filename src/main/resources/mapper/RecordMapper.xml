@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.jt.mapper.RecordMapper">
+
+    <!-- 根据录入编号查询录入记录 -->
+    <select id="selectRecordById" resultType="cn.jt.pojo.Record">
+        select * from record_ where id = #{id}
+    </select>
+
+    <!-- 根据职工号和具体变动类型（reason）号 ... 查询 （加年份，加月份）-->
+    <select id="selectReasonsByUserIdAndReasonId" resultType="cn.jt.pojo.Record">
+        select * from record_
+            where user_id = #{userId} and reason_id = #{reasonId}
+            and rmonth = #{rmonth} and ryear = #{ryear}
+    </select>
+
+    <!-- 根据职工号和具体变动类型（reason）号查询最小年份，和最大年份）-->
+    <select id="selectMaxAndMinYearByUserIdAndReasonId" resultType="java.util.Map">
+        select max(ryear) maxyear, min(ryear) minyear from record_ where user_id = #{userId} and reason_id =#{reasonId}
+    </select>
+
+    <!-- 获取某名职工某年某月某一级变动类型（如津贴）下各二级变动类型总额 -->
+    <select id="selectPersonBookChangeReason" resultType="cn.jt.pojo.result.ChangeReason">
+        select record_.reason_id, reason_.description, sum(money) total_money
+            from record_ left join reason_ on record_.reason_id = reason_.id
+            where record_.change_id=#{changeId}
+                and user_id=#{userId}
+                and ryear=#{ryear}
+                and rmonth=#{rmonth}
+            group by record_.reason_id, reason_.description
+    </select>
+    <!-- 获取没有录入金额的变动类型 ，和 selectPersonBookChangeReason 结合使用-->
+    <select id="selectPersonBookChangeReasonPlus" resultType="cn.jt.pojo.result.ChangeReason">
+        select id reason_id,description,0 from reason_ where change_id = #{changeId} and id not in (
+            select record_.reason_id from record_ left join reason_ on record_.reason_id = reason_.id
+            where record_.change_id=#{changeId}
+                and user_id=#{userId}
+                and ryear=#{ryear}
+                and rmonth=#{rmonth}
+            group by record_.reason_id, reason_.description)
+    </select>
+
+    <!-- 新增一条录入记录 -->
+    <insert id="insertRecord">
+        insert into record_(user_id,checker_id,depart_id,change_id,reason_id,money,checker_name,record_time,rmonth,ryear) values(#{userId},#{checkerId},#{departId},#{changeId},#{reasonId},#{money},#{checkerName},#{recordTime},#{rmonth},#{ryear})
+    </insert>
+
+    <!-- 查询分页列表，整合分页与检索 -->
+    <select id="selectPagingRecordsByInfo" resultType="cn.jt.pojo.Record">
+        select * from record_
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="input != null and input !=''">
+                and (checker_name like "%"#{input}"%" or depart_id like "%"#{input}"%")
+            </if>
+            <if test="userId != null and userId !=-1">
+                and user_id = #{userId}
+            </if>
+            <if test="checkerId != null and checkerId !=-1">
+                and checker_id =#{checkerId}
+            </if>
+            <if test="departId != null and departId !=''">
+                and depart_id =#{departId}
+            </if>
+            <if test="changeId != null and changeId !=-1">
+                and change_id =#{changeId}
+            </if>
+            <if test="reasonId != null and reasonId !=-1">
+                and reason_id =#{reasonId}
+            </if>
+            <if test="beginRyear != null and beginRyear !=''">
+                and <![CDATA[ ryear >= #{beginRyear} ]]>
+            </if>
+            <if test="endRyear != null and endRyear !=''">
+                and <![CDATA[ ryear <= #{beginRyear} ]]>
+            </if>
+            <if test="beginRmonth != null and beginRmonth !=''">
+                and <![CDATA[ rmonth >= #{beginRmonth} ]]>
+            </if>
+            <if test="endRmonth != null and endRmonth !=''">
+                and <![CDATA[ rmonth <= #{endRmonth} ]]>
+            </if>
+        </trim>
+    </select>
+
+    <!--更新 -->
+    <update id="updateRecordById">
+        update record_ set
+        change_id=#{changeId},
+        reason_id=#{reasonId},
+        money = #{money} where id=#{id}
+    </update>
+
+    
+</mapper>
